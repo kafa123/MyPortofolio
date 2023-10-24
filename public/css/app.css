@@ -1,0 +1,38 @@
+body{
+    background-color: black;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+}
+.SrBlack{
+    background-color: #0F0F0F;
+}
+.TrBlack{
+    background-color: #131313;
+}
+.PrLavender{
+    color: #7456FF;
+}
+.SrLavender{
+    color: #8368FF;
+}
+.TrLavender{
+    background-color: #8368FF;
+}
+.QrLavender{
+    background-color: #C5B9FF;
+}
+.nav-item a:hover{
+    color: #8368FF !important;
+}
+.gray{
+    background: linear-gradient(#999999,#707070) padding-box, linear-gradient(#999999,#707070) border-box;
+    border-image:  1;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 1.5rem;
+    border-color: transparent;
+    filter: drop-shadow(10px 10px 10px 10px white);
+}
+.gray img{
+    filter: drop-shadow(10px 10px 10px 10px #999999);
+}
