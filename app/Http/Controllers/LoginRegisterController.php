@@ -7,16 +7,12 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
 
 class LoginRegisterController extends Controller
 {
     //
-    public function __construct()
-    {
-        $this->middleware('guest')->except([
-            'logout', 'dashboard'
-        ]);
-    }
 
     /**
      * Display a registration form.
@@ -39,14 +35,28 @@ class LoginRegisterController extends Controller
         $request->validate([
             'name' => 'required|string|max:250',
             'email' => 'required|email|max:250|unique:users',
-            'password' => 'required|min:8|confirmed'
+            'password' => 'required|min:8|confirmed',
+            'photo'=>'image|nullable|max:1999'
         ]);
-
+        if ($request->hasFile('photo')) {
+            $filenameWithExt = $request->file('photo')->getClientOriginalName();
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $extension = $request->file('photo')->getClientOriginalExtension();
+            $filenameSimpan = $filename . '_' . time() . '.' . $extension;
+            $path = $request->file('photo')->storeAs('photos', $filenameSimpan);
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'photo' => $path
+            ]);
+        } else {
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password)
         ]);
+    }
         $data = [
             'name'=> $request->name,
             'email'=> $request->email
@@ -66,7 +76,45 @@ class LoginRegisterController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function login()
+    public function update(Request $request, $id){
+        $request->validate([
+            'name' => 'required|string|max:250',
+            'email' => 'required|email',
+            'photo' => 'image|nullable|max:1999'
+        ]);
+        // dd($request->all());
+        $user = User::findOrFail($id);
+        // check apakah image is uploaded
+        if ($request->hasFile('photo')){
+            // upload  new image
+            $image = $request->file('photo');
+            $filenameWithExt = $request->file('photo')->getClientOriginalName();
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $extension = $request->file('photo')->getClientOriginalExtension();
+            $filenameSimpan = $filename . '_' . time() . '.' . $extension;
+            $path = $request->file('photo')->storeAs('photos', $filenameSimpan);
+
+            //delete old image
+            // dd(public_path().''.$user->photo);
+            Storage::delete('photos/'.$user->photo);
+
+            //update post with new image
+            $user->update([
+                'name'      => $request->name,
+                'email'     => $request->email,
+                'photo'     => $filenameSimpan
+            ]);
+        } else {
+            //update user without photo
+            $user->update([
+                'name'      => $request->name,
+                'email'     => $request->email,
+            ]);
+        }
+        //redirect to dashboard
+        return redirect()->route('user.index')->with(['message' => 'Data Berhasil Diubah!']);
+    }
+     public function login()
     {
         return view('auth.login');
     }
@@ -126,5 +174,46 @@ class LoginRegisterController extends Controller
         return redirect()->route('login')
             ->withSuccess('You have logged out successfully!');;
     }
-}
+    public function resize(Request $request, string $id){
+        $user = User::findOrFail($id);
+        return view('auth.resize', compact('user'));
+    }
 
+    // resize image post
+    public function resizePost(string $id){
+        $user = User::findOrFail($id);
+
+        $photoPath = public_path('storage/'.$user->photo);
+
+        $thumbnailPath = public_path('storage/thumbnails/'.$user->photo);
+        $photoResized = Image::make($photoPath);
+        $photoResized->fit(100,100);
+        $photoResized->save($thumbnailPath);
+        return redirect()->route('auth.resize', $user->id)->with(['message'=> 'Berhasil di resize']);
+    }
+
+    public function edit(string $id){
+        $user = User::findOrFail($id);
+        if (Auth::check()) {
+            return view('auth.edit', compact('user'));
+        }
+    }
+
+    public function destroy(string $id){
+        $user = User::findOrFail($id);
+
+        Storage::delete($user->photo);
+
+        $user->delete();
+
+        return redirect()->route('auth.index')->with(['message' => 'Data Berhasil Dihapus!']);
+    }
+
+    public function indexUser(){
+        $users = User::get();
+        if (Auth::check()) {
+            return view('auth.index', compact('users'));
+        }
+    }
+
+}

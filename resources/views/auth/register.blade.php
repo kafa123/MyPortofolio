@@ -11,7 +11,7 @@
         <div class="card">
             <div class="card-header TrLavender">Register</div>
             <div class="card-body QrLavender">
-                <form action="{{ route('store') }}" method="post">
+                <form action="{{ route('store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3 row">
                         <label for="name" class="col-md-4 col-form-label text-md-end text-start">Name</label>
@@ -45,6 +45,13 @@
                         <div class="col-md-6">
                             <input type="password" class="form-control" id="password_confirmation" name="password_confirmation">
                         </div>
+                    </div>
+                    <div class="mb-5">
+                        <label for="photo" class="form-label">Photo</label>
+                        <input type="file" class="form-control" id="" name="photo" value="">
+                        @if ($errors->has('photo'))
+                            <span class="text-danger">{{ $errors->first('photo') }}</span>
+                        @endif
                     </div>
                     <div class="mb-3 row">
                         <input type="submit" class="col-md-3 offset-md-5 btn btn-primary" value="Register">
