@@ -15,16 +15,16 @@
                             <div>
                                 <div class="row p-3 rounded-2 ">
                                     <div class="col col-6">
-                                        <a class="example-image-link" href="{{ asset('storage/posts_image/' . $gallery->picture) }}"
-                                            data-lightbox="roadtrip" data-title="{{ $gallery->description }}">
-                                            <img class="example-image img-fluid mb-2"src="{{ asset('storage/posts_image/' . $gallery->picture) }}"
+                                        <a class="example-image-link" href="{{ asset('storage/posts_image/' . $gallery['picture']) }}"
+                                            data-lightbox="roadtrip" data-title="{{ $gallery['description'] }}">
+                                            <img class="example-image img-fluid mb-2"src="{{ asset('storage/posts_image/' . $gallery['picture']) }}"
                                                 alt="image-1" />
                                         </a>
                                     </div>
                                     <div class="col col-3 ">
-                                        <a href="{{ route('gallery.edit', $gallery->id) }}" class="btn btn-primary">Edit</a>
+                                        <a href="{{ route('gallery.edit', $gallery['id']) }}" class="btn btn-primary">Edit</a>
                                 <form onsubmit="return confirm('Yakin ingin hapus ?');"
-                                    action="{{ route('gallery.destroy', $gallery->id) }}" method="POST">
+                                    action="{{ route('gallery.destroy', $gallery['id']) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger my-2">Delete</button>
@@ -38,9 +38,9 @@
                 @else
                     <h3>Tidak ada data.</h3>
                 @endif
-                <div class="d-flex">
-                    {{ $galleries->links() }}
-                </div>
+                {{-- <div class="d-flex">
+                    {{ $galleries['link'] }}
+                </div> --}}
                 <div class="d-flex mt-5">
                     <a href="{{ route('dashboard') }}" class="btn btn-outline-danger">
                         < Back to Home</a>
